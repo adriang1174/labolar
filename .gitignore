@@ -1,2 +1,9 @@
 public_html/archivos
 public_html/archivos.old
+*.sql
+*.gz
+error_log
+logs
+var
+mail
+ssl
