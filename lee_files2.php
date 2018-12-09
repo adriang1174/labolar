@@ -15,7 +15,7 @@ mysql_select_db('labolar_certi');
 while ($archivo = readdir($directorio)) {  
 		echo date('d M Y h:i:s ')." ".$archivo.": ";
 		$str = '';
-		if (!($archivo=="." || $archivo=="..")) {  
+		if (!($archivo=="." || $archivo=="..") && substr($archivo, -3) <> 'pdf' ) {  
 						//Chequear archivo contra base de datos a ver si está cargado
 						$query = "select count(*) as existe from certificados where archivo ='".$archivo."'"; 
 						//echo $query;
@@ -161,6 +161,25 @@ nombre  			= '".$nombre."',
 						}
 		}
 		//unlink($archivo);
+		if(substr($archivo, -3) == 'pdf'){
+			$query = "select count(*) as existe from certificados where archivo ='".$archivo."'"; 
+			//echo $query;
+			$result = mysql_query($query);
+			//var_dump($result);
+			$res = mysql_fetch_assoc($result);
+			//var_dump($res);
+			if($res['existe'] == '0'){
+				$orden = substr($archivo, 0,7);
+				$documento = substr($archivo, 7,9);
+				$sql = "INSERT INTO certificados (nro,afiliado,nombre,fecha,sexo,tipodoc,nrodoc,observaciones,archivo,txt_archivo)
+									        VALUES('".$orden."','','',null,'','','".$documento."','','".$archivo."','')";
+				echo "Insertando protocolo: ".$orden.". ";									
+				mysql_query($sql);
+				echo "Result: ".mysql_error()." " ;
+				echo "Registros insertados: ".mysql_affected_rows()."\n";
+			}
+			
+		}
 } 
 mysql_close($link);
 ?>
