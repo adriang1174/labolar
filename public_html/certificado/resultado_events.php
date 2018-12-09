@@ -56,9 +56,7 @@ function certificado_txt_archivo_BeforeShow(& $sender)
 	}
 	else{
 		$str = "<a href=../archivos/".$archivo." style='FONT-SIZE: 80%; FONT-FAMILY: Arial;'> 
-					<img src='PDF.png' alt='PDF icon'>
-					Ver resultados 
-					</a> ";
+					<img src='PDF.png' alt='PDF icon'>Ver resultados</a> ";
 	}
 
 $certificado->txt_archivo->SetValue($str);
