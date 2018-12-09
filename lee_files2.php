@@ -178,6 +178,10 @@ nombre  			= '".$nombre."',
 				echo "Result: ".mysql_error()." " ;
 				echo "Registros insertados: ".mysql_affected_rows()."\n";
 			}
+			else
+			{
+				echo "Registros insertados: 0"."\n";	
+			}
 			
 		}
 } 
