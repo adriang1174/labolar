@@ -15,6 +15,7 @@ function certificado_txt_archivo_BeforeShow(& $sender)
     $Component = & $sender;
     $Container = & CCGetParentContainer($sender);
     global $certificado; //Compatibility
+    global $Link2;
 //End certificado_txt_archivo_BeforeShow
 
 //Custom Code @13-2A29BDB7
@@ -56,7 +57,7 @@ function certificado_txt_archivo_BeforeShow(& $sender)
 	}
 	else{
 		$str = "<a href=../archivos/".$archivo." style='FONT-SIZE: 80%; FONT-FAMILY: Arial;'> <img src='PDF.png' alt='PDF icon'>Ver resultados</a> ";
-		$certificado->Link2->Visible = false;
+		$Link2->Visible = false;
 	}
 
 $certificado->txt_archivo->SetValue($str);

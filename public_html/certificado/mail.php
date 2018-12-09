@@ -34,44 +34,44 @@ $db = new clsDBConnection1();
                 $str = file_get_contents($path.$archivo);
         }
 	
-	//$str = StrTr($str,"\x21", " ");
-	$str = Str_replace("\x21", "",$str);
-	$str = Str_replace("\x10", "",$str);
-	$str = Str_replace("\x1B", "",$str);
-	$str = Str_replace("\x08", "",$str);
-	$str = Str_replace("\x00", "",$str);
-/*	$str = StrTr($str,"\x10", "");
-	$str = StrTr($str,"\x1B", " ");
-	$str = StrTr($str,"\x08", " ");
-	$str = StrTr($str,"\x00", " ");
-	$str = StrTr($str,"\x0A", " ");*/
-	$str = StrTr($str,"\x82", "é");
-	$str = StrTr($str,"\xA2", "ó");
-	$str = StrTr($str,"\xA4", "ñ");
-	$str = Str_replace("\x12", "",$str);
-	$str = Str_replace("(s3B", "",$str);
-	$str = Str_replace("(s11H", "",$str);
-	$str = Str_replace("(s0S", "",$str);
-	$str = Str_replace("(s0B", "",$str);
-	$str = Str_replace("(s7B", "",$str);
-	$str = StrTr($str,"\x0D", chr(10));
-
-//$txt_archivo = str_replace(chr(10),'<BR>',$str);
-$txt_archivo = $str;
-
 
 //$body = $txt_archivo;
 //Attachments
 if (substr($archivo, -3) == 'pdf'){
     $mail->addAttachment($path.$archivo);  
-    $body = "Estimado paciente,
-
-              Puede ver sus resultados en el archivo adjunto a este correo. 
-
-            Atentamente.
+    $body = "Estimado paciente, <br>
+<br>
+              Puede ver sus resultados en el archivo adjunto a este correo. <br>
+<br>
+            Atentamente.<br>
             Laboratorios Raffo  ";
 } 
 else{   
+        //$str = StrTr($str,"\x21", " ");
+        $str = Str_replace("\x21", "",$str);
+        $str = Str_replace("\x10", "",$str);
+        $str = Str_replace("\x1B", "",$str);
+        $str = Str_replace("\x08", "",$str);
+        $str = Str_replace("\x00", "",$str);
+      /*  $str = StrTr($str,"\x10", "");
+        $str = StrTr($str,"\x1B", " ");
+        $str = StrTr($str,"\x08", " ");
+        $str = StrTr($str,"\x00", " ");
+        $str = StrTr($str,"\x0A", " ");*/
+        $str = StrTr($str,"\x82", "é");
+        $str = StrTr($str,"\xA2", "ó");
+        $str = StrTr($str,"\xA4", "ñ");
+        $str = Str_replace("\x12", "",$str);
+        $str = Str_replace("(s3B", "",$str);
+        $str = Str_replace("(s11H", "",$str);
+        $str = Str_replace("(s0S", "",$str);
+        $str = Str_replace("(s0B", "",$str);
+        $str = Str_replace("(s7B", "",$str);
+        $str = StrTr($str,"\x0D", chr(10));
+
+      //$txt_archivo = str_replace(chr(10),'<BR>',$str);
+      $txt_archivo = $str;
+
       $body ="
 
       <table cellspacing=\"0\" cellpadding=\"0\" border=\"0\">
