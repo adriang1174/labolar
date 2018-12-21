@@ -56,7 +56,7 @@ function certificado_txt_archivo_BeforeShow(& $sender)
 		$str = StrTr($str,"\x0D", chr(10));
 	}
 	else{
-		$str = "<a href="$path.$archivo." style='FONT-SIZE: 80%; FONT-FAMILY: Arial;'> <img src='PDF.png' alt='PDF icon'>Ver resultados</a> ";
+		$str = "<a href=".$path.$archivo." style='FONT-SIZE: 80%; FONT-FAMILY: Arial;'> <img src='PDF.png' alt='PDF icon'>Ver resultados</a> ";
 		$Link2->Visible = false;
 	}
 
