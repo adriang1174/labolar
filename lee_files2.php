@@ -15,7 +15,7 @@ mysql_select_db('labolar_certi');
 while ($archivo = readdir($directorio)) {  
 		echo date('d M Y h:i:s ')." ".$archivo.": ";
 		$str = '';
-		if (!($archivo=="." || $archivo=="..") && substr($archivo, -3) <> 'pdf' ) {  
+		if (!($archivo=="." || $archivo=="..") && substr($archivo, -3) <> 'pdf' && substr($archivo, -3) <> 'PDF') {  
 						//Chequear archivo contra base de datos a ver si está cargado
 						$query = "select count(*) as existe from certificados where archivo ='".$archivo."'"; 
 						//echo $query;
@@ -161,7 +161,7 @@ nombre  			= '".$nombre."',
 						}
 		}
 		//unlink($archivo);
-		if(substr($archivo, -3) == 'pdf'){
+		if(substr($archivo, -3) == 'pdf' || substr($archivo, -3) == 'PDF'){
 			$query = "select count(*) as existe from certificados where archivo ='".$archivo."'"; 
 			//echo $query;
 			$result = mysql_query($query);
@@ -170,9 +170,11 @@ nombre  			= '".$nombre."',
 			//var_dump($res);
 			if($res['existe'] == '0'){
 				$orden = substr($archivo, 0,7);
-				$documento = substr($archivo, 7,9);
+				$doclen = strlen($archivo) - 7 - 4 ;
+				$documento = substr($archivo, 7,$doclen);
 				$sql = "INSERT INTO certificados (nro,afiliado,nombre,fecha,sexo,tipodoc,nrodoc,observaciones,archivo,txt_archivo)
-									        VALUES('".$orden."','','',null,'','','".$documento."','','".$archivo."','')";
+									        VALUES('".$orden."','','',null,'','','".$documento."','','".$archivo."','')
+									ON DUPLICATE KEY UPDATE nrodoc='".$documento."' ,archivo='".$archivo."'";
 				echo "Insertando protocolo: ".$orden.". ";									
 				mysql_query($sql);
 				echo "Result: ".mysql_error()." " ;
