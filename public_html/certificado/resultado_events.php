@@ -29,7 +29,7 @@ function certificado_txt_archivo_BeforeShow(& $sender)
 	        $str = file_get_contents($path.$archivo);
 	}
 
-	if (substr($archivo, -3) <> 'pdf'){
+	if (substr($archivo, -3) <> 'pdf' && substr($archivo, -3) <> 'PDF'){
 
 		$str = StrTr($str,"\x21", " ");
 		$str = Str_replace("\x21", "",$str);

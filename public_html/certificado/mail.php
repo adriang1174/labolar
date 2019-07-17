@@ -37,7 +37,7 @@ $db = new clsDBConnection1();
 
 //$body = $txt_archivo;
 //Attachments
-if (substr($archivo, -3) == 'pdf'){
+if (strtolower(substr($archivo, -3)) == 'pdf'){
     $mail->addAttachment($path.$archivo);  
     $body = "Estimado paciente, <br>
 <br>
