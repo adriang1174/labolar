@@ -1,301 +1,102 @@
-<?php
-//Include Common Files @1-86440829
-define("RelativePath", ".");
-define("PathToCurrentPage", "/");
-define("FileName", "listado.php");
-include_once(RelativePath . "/Common.php");
-include_once(RelativePath . "/Template.php");
-include_once(RelativePath . "/Sorter.php");
-include_once(RelativePath . "/Navigator.php");
-//End Include Common Files
-
-
-
-class clsRecordcertificadosSearch { //certificadosSearch Class @3-FAA8A330
-
-//Variables @3-D6FF3E86
-
-    // Public variables
-    var $ComponentType = "Record";
-    var $ComponentName;
-    var $Parent;
-    var $HTMLFormAction;
-    var $PressedButton;
-    var $Errors;
-    var $ErrorBlock;
-    var $FormSubmitted;
-    var $FormEnctype;
-    var $Visible;
-    var $IsEmpty;
-
-    var $CCSEvents = "";
-    var $CCSEventResult;
-
-    var $RelativePath = "";
-
-    var $InsertAllowed = false;
-    var $UpdateAllowed = false;
-    var $DeleteAllowed = false;
-    var $ReadAllowed   = false;
-    var $EditMode      = false;
-    var $ds;
-    var $DataSource;
-    var $ValidatingControls;
-    var $Controls;
-    var $Attributes;
-
-    // Class variables
-//End Variables
-
-//Class_Initialize Event @3-3C45547F
-    function clsRecordcertificadosSearch($RelativePath, & $Parent)
-    {
-
-        global $FileName;
-        global $CCSLocales;
-        global $DefaultDateFormat;
-        $this->Visible = true;
-        $this->Parent = & $Parent;
-        $this->RelativePath = $RelativePath;
-        $this->Errors = new clsErrors();
-        $this->ErrorBlock = "Record certificadosSearch/Error";
-        $this->ReadAllowed = true;
-        if($this->Visible)
-        {
-            $this->ComponentName = "certificadosSearch";
-            $this->Attributes = new clsAttributes($this->ComponentName . ":");
-            $CCSForm = split(":", CCGetFromGet("ccsForm", ""), 2);
-            if(sizeof($CCSForm) == 1)
-                $CCSForm[1] = "";
-            list($FormName, $FormMethod) = $CCSForm;
-            $this->FormEnctype = "application/x-www-form-urlencoded";
-            $this->FormSubmitted = ($FormName == $this->ComponentName);
-            $Method = $this->FormSubmitted ? ccsPost : ccsGet;
-            $this->Button_DoSearch = & new clsButton("Button_DoSearch", $Method, $this);
-            $this->s_protocolo = & new clsControl(ccsTextBox, "s_protocolo", "s_protocolo", ccsText, "", CCGetRequestParam("s_protocolo", $Method, NULL), $this);
-            $this->s_afiliado = & new clsControl(ccsTextBox, "s_afiliado", "s_afiliado", ccsText, "", CCGetRequestParam("s_afiliado", $Method, NULL), $this);
-	     $this->s_nrodoc = & new clsControl(ccsTextBox, "s_nrodoc", "s_nrodoc", ccsText, "", CCGetRequestParam("s_nrodoc", $Method, NULL), $this);
-        }
-    }
-//End Class_Initialize Event
-
-//Validate Method @3-05FFE45E
-    function Validate()
-    {
-        global $CCSLocales;
-        $Validation = true;
-        $Where = "";
-        $Validation = ($this->s_protocolo->Validate() && $Validation);
-        $Validation = ($this->s_nrodoc->Validate() && $Validation);
-        $this->CCSEventResult = CCGetEvent($this->CCSEvents, "OnValidate", $this);
-        $Validation =  $Validation && ($this->s_protocolo->Errors->Count() == 0);
-        $Validation =  $Validation && ($this->s_nrodoc->Errors->Count() == 0);
-        return (($this->Errors->Count() == 0) && $Validation);
-    }
-//End Validate Method
-
-//CheckErrors Method @3-8193D432
-    function CheckErrors()
-    {
-        $errors = false;
-        $errors = ($errors || $this->s_protocolo->Errors->Count());
-        $errors = ($errors || $this->s_nrodoc->Errors->Count());
-        $errors = ($errors || $this->Errors->Count());
-        return $errors;
-    }
-//End CheckErrors Method
-
-//MasterDetail @3-ED598703
-function SetPrimaryKeys($keyArray)
-{
-    $this->PrimaryKeys = $keyArray;
-}
-function GetPrimaryKeys()
-{
-    return $this->PrimaryKeys;
-}
-function GetPrimaryKey($keyName)
-{
-    return $this->PrimaryKeys[$keyName];
-}
-//End MasterDetail
-
-//Operation Method @3-AF4A5524
-    function Operation()
-    {
-        if(!$this->Visible)
-            return;
-
-        global $Redirect;
-        global $FileName;
-
-        if(!$this->FormSubmitted) {
-            return;
-        }
-
-        if($this->FormSubmitted) {
-            $this->PressedButton = "Button_DoSearch";
-            if($this->Button_DoSearch->Pressed) {
-                $this->PressedButton = "Button_DoSearch";
-            }
-        }
-        $Redirect = "certificados.php";
-        if($this->Validate()) {
-            if($this->PressedButton == "Button_DoSearch") {
-                $Redirect = "certificados.php" . "?" . CCMergeQueryStrings(CCGetQueryString("Form", array("Button_DoSearch", "Button_DoSearch_x", "Button_DoSearch_y")));
-                if(!CCGetEvent($this->Button_DoSearch->CCSEvents, "OnClick", $this->Button_DoSearch)) {
-                    $Redirect = "";
-                }
-            }
-        } else {
-            $Redirect = "";
-        }
-    }
-//End Operation Method
-
-//Show Method @3-C9AD37D0
-    function Show()
-    {
-        global $CCSUseAmp;
-        global $Tpl;
-        global $FileName;
-        global $CCSLocales;
-        $Error = "";
-
-        if(!$this->Visible)
-            return;
-
-        $this->CCSEventResult = CCGetEvent($this->CCSEvents, "BeforeSelect", $this);
-
-
-        $RecordBlock = "Record " . $this->ComponentName;
-        $ParentPath = $Tpl->block_path;
-        $Tpl->block_path = $ParentPath . "/" . $RecordBlock;
-        $this->EditMode = $this->EditMode && $this->ReadAllowed;
-        if (!$this->FormSubmitted) {
-        }
-
-        if($this->FormSubmitted || $this->CheckErrors()) {
-            $Error = "";
-            $Error = ComposeStrings($Error, $this->s_protocolo->Errors->ToString());
-            $Error = ComposeStrings($Error, $this->s_nrodoc->Errors->ToString());
-            $Error = ComposeStrings($Error, $this->Errors->ToString());
-            $Tpl->SetVar("Error", $Error);
-            $Tpl->Parse("Error", false);
-        }
-        $CCSForm = $this->EditMode ? $this->ComponentName . ":" . "Edit" : $this->ComponentName;
-        $this->HTMLFormAction = $FileName . "?" . CCAddParam(CCGetQueryString("QueryString", ""), "ccsForm", $CCSForm);
-        $Tpl->SetVar("Action", !$CCSUseAmp ? $this->HTMLFormAction : str_replace("&", "&amp;", $this->HTMLFormAction));
-        $Tpl->SetVar("HTMLFormName", $this->ComponentName);
-        $Tpl->SetVar("HTMLFormEnctype", $this->FormEnctype);
-
-        $this->CCSEventResult = CCGetEvent($this->CCSEvents, "BeforeShow", $this);
-        $this->Attributes->Show();
-        if(!$this->Visible) {
-            $Tpl->block_path = $ParentPath;
-            return;
-        }
-
-        $this->Button_DoSearch->Show();
-        $this->s_protocolo->Show();
-        $this->s_afiliado->Show();
-	$this->s_nrodoc->Show();
-        $Tpl->parse();
-        $Tpl->block_path = $ParentPath;
-    }
-//End Show Method
-
-} //End certificadosSearch Class @3-FCB6E20C
-
-//Initialize Page @1-9B9435C4
-// Variables
-$FileName = "";
-$Redirect = "";
-$Tpl = "";
-$TemplateFileName = "";
-$BlockToParse = "";
-$ComponentName = "";
-$Attributes = "";
-
-// Events;
-$CCSEvents = "";
-$CCSEventResult = "";
-
-$FileName = FileName;
-$Redirect = "";
-$TemplateFileName = "listado.html";
-$BlockToParse = "main";
-$TemplateEncoding = "CP1252";
-$ContentType = "text/html";
-$PathToRoot = "./";
-$Charset = $Charset ? $Charset : "windows-1252";
-//End Initialize Page
-
-//Before Initialize @1-E870CEBC
-$CCSEventResult = CCGetEvent($CCSEvents, "BeforeInitialize", $MainPage);
-//End Before Initialize
-
-//Initialize Objects @1-6A42A7D4
-$Attributes = new clsAttributes("page:");
-$MainPage->Attributes = & $Attributes;
-
-// Controls
-$certificadosSearch = & new clsRecordcertificadosSearch("", $MainPage);
-$Label1 = & new clsControl(ccsLabel, "Label1", "Label1", ccsText, "", CCGetRequestParam("Label1", ccsGet, NULL), $MainPage);
-$MainPage->certificadosSearch = & $certificadosSearch;
-$MainPage->Label1 = & $Label1;
-if(!is_array($Label1->Value) && !strlen($Label1->Value) && $Label1->Value !== false)
-    $Label1->SetText($CCSLocales->GetText("Text1"));
-
-$CCSEventResult = CCGetEvent($CCSEvents, "AfterInitialize", $MainPage);
-
-if ($Charset) {
-    header("Content-Type: " . $ContentType . "; charset=" . $Charset);
-} else {
-    header("Content-Type: " . $ContentType);
-}
-//End Initialize Objects
-
-//Initialize HTML Template @1-E710DB26
-$CCSEventResult = CCGetEvent($CCSEvents, "OnInitializeView", $MainPage);
-$Tpl = new clsTemplate($FileEncoding, $TemplateEncoding);
-$Tpl->LoadTemplate(PathToCurrentPage . $TemplateFileName, $BlockToParse, "CP1252");
-$Tpl->block_path = "/$BlockToParse";
-$CCSEventResult = CCGetEvent($CCSEvents, "BeforeShow", $MainPage);
-$Attributes->SetValue("pathToRoot", "");
-$Attributes->Show();
-//End Initialize HTML Template
-
-//Execute Components @1-A38A5749
-$certificadosSearch->Operation();
-//End Execute Components
-
-//Go to destination page @1-391ABBAC
-if($Redirect)
-{
-    $CCSEventResult = CCGetEvent($CCSEvents, "BeforeUnload", $MainPage);
-    header("Location: " . $Redirect);
-    unset($certificadosSearch);
-    unset($Tpl);
-    exit;
-}
-//End Go to destination page
-
-//Show Page @1-31590DD4
-$certificadosSearch->Show();
-$Label1->Show();
-$Tpl->block_path = "";
-$Tpl->Parse($BlockToParse, false);
-if (!isset($main_block)) $main_block = $Tpl->GetVar($BlockToParse);
-$CCSEventResult = CCGetEvent($CCSEvents, "BeforeOutput", $MainPage);
-if ($CCSEventResult) echo $main_block;
-//End Show Page
-
-//Unload Page @1-2E63E471
-$CCSEventResult = CCGetEvent($CCSEvents, "BeforeUnload", $MainPage);
-unset($certificadosSearch);
-unset($Tpl);
-//End Unload Page
-
-
+<?php 
+include('include/header.php');
 ?>
+
+<script type="text/javascript">
+$(document).ready(function() {
+  $("#busqueda").validate({
+    rules: {
+      s_nrodoc : {
+        required: true
+      },
+      s_protocolo: {
+        required: true
+      }
+    },
+	messages: {
+    s_nrodoc: "Por favor ingrese su número de documento",
+    s_protocolo: "Por favor ingrese el número de paciente"
+	}
+  });
+});
+</script>
+
+<?php
+include('include/container.php');
+?>
+
+<div id='av_section_2'  class='avia-section main_color avia-section-default avia-no-border-styling avia-bg-style-scroll  avia-builder-el-3  el_after_av_section  avia-builder-el-last   container_wrap fullsize' style=' '  >
+	<div class='container' >
+		<div class='template-page content  av-content-full alpha units'>
+			<div class='post-entry post-entry-type-page post-entry-149'>
+				<div class='entry-content-wrapper clearfix'>
+					<div class="flex_column av_two_third  flex_column_div av-zero-column-padding first  avia-builder-el-4  el_before_av_one_third  avia-builder-el-first  " style='border-radius:0px; '>
+						<section class="avia_codeblock_section  avia_code_block_0 "  itemscope="itemscope" itemtype="https://schema.org/CreativeWork" >
+							<div class='avia_codeblock '  itemprop="text" > 
+								<h4>Complete con n&uacute;mero de documento y n&uacute;mero de paciente para buscar sus estudios</h4>
+								<div role="form" class="wpcf7" id="wpcf7-f21-p149-o1" lang="en-US" dir="ltr">
+									<div class="screen-reader-response">
+									</div>
+									<form action="certificados.php" name="busqueda" id="busqueda" method="post" class="wpcf7-form" novalidate="novalidate">
+										<p>
+											<label> Nro. Documento *<br />
+												<span class="wpcf7-form-control-wrap ">
+													<input type="text" name="s_nrodoc" value="" size="20" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" aria-required="true" aria-invalid="false" />
+												</span> 
+											</label>
+										</p>
+										<p>
+											<label> Nro. Paciente *<br />
+												<span class="wpcf7-form-control-wrap ">
+													<input type="text" name="s_protocolo" value="" size="20" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" aria-required="true" aria-invalid="false" />
+												</span>
+											</label>
+										</p>
+										<p>
+											<input type="submit" value="CONSULTAR" class="wpcf7-form-control wpcf7-submit avia-button avia-color-theme-color avia-size-medium" />
+										</p>
+										<div class="wpcf7-response-output wpcf7-display-none">
+										</div>
+									</form>
+								</div>
+							</div>
+
+
+							<div style="font-family: 'Poppins', sans-serif!important; font-size: 13px;">
+							<br>
+							<br>
+							PARA IMPRIMIR SUS RESULTADOS por "Buscar Certificados":
+							<br>
+							Por favor, tenga a mano su Documento y el " Nº PACIENTE" que le fue asignado al momento de la extracción en el Laboratorio.
+							<br><br>
+							Ingrese su número de documento en el espacio "Nro. Documento" (sin dejar espacios en blanco) y el número de paciente en el espacio "Nro. Paciente" (este dato figura en el "Talón Paciente", en el margen superior derecho)  ** Por favor ingresarlo sin dejar espacios, por ej: L000000 **
+							<br><br>
+							Recuerde:
+							<br>
+							*Para solicitar el envio de sus resultados por correo privado (en este caso con costos a cargo del paciente) puede contactarnos por la web,  por mail a recepcion@laboratorioraffo.com.ar, por Whatsapp al 1161767119 o bien telefónicamente al 4821-1212/4826-0869/4826-4949 de Lunes a Viernes de 8 a 19 hs
+							<br>
+							</div>
+
+
+							
+							
+						</section>
+					</div>
+					<div class="flex_column av_one_third  flex_column_div   avia-builder-el-6  el_after_av_two_third  el_before_av_one_full  " style='border-width:1px; border-color:#dbdbdb; border-style:solid; padding:20px 20px 20px 20px ; border-radius:24px; '>
+						<section class="av_textblock_section "  itemscope="itemscope" itemtype="https://schema.org/CreativeWork" >
+							<div class='avia_textblock  '   itemprop="text" >
+								<h4>Información de contacto</h4>
+								<p><strong>E-mail:</strong> <a href="mailto:recepcion@laboratorioraffo.com.ar">recepcion@laboratorioraffo.com.ar</a></p>
+								<p><strong>Whatsapp:</strong> 1161767119</p>
+								<p><strong>Teléfonos:</strong> 4821-1212 / 4826-0869 / 4826-4949</p>
+								<p><strong>Dirección:</strong> Laprida 1225 PB &#8220;A&#8221;, Ciudad Autónoma de Buenos Aires, Argentina</p>
+							</div>
+						</section>
+					</div>
+				</div>
+			</div>
+		</div><!-- close content main div --> 
+	</div><!--end builder template-->
+</div><!-- close default .container_wrap element -->						
+
+<?php include('include/footer.php');?>		
